@@ -25,7 +25,7 @@ jobs:
           name: Deploy to aws from template
           command:  |
             set -x
-            aws cloudformation deploy --template-file cloudformation/cfn_iam_role.yml --stack-name circleci-iam-role
+            aws cloudformation deploy --template-file cloudformation/cfn_network.yml --stack-name circleci-iam-role
 
 # Orchestrate jobs using workflows
 # See: https://circleci.com/docs/workflows/ & https://circleci.com/docs/configuration-reference/#workflows
