@@ -1,0 +1,30 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: create EC2
+
+Parameters:
+  PJName:
+    Type: String
+    Default: "circleci-test"
+
+  TagKey:
+    Description: key for cost allocation tags
+    Type: String
+    Default: "RaiseTech"
+
+Resources:
+  # ------------------------------------------------------------#
+  #  S3 Bucket
+  # ------------------------------------------------------------#
+  CfnS3Bucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Delete
+    Properties:
+      BucketName: !Sub "${PJName}-bucket"
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      Tags:
+        - Key: !Ref TagKey
+          Value: !Ref PJName
