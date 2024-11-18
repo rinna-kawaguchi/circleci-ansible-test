@@ -1,0 +1,80 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: create EC2, RDS, ALB, S3
+
+Parameters:
+  PJName:
+    Type: String
+    Default: "aws-lecture13-ci-test"
+
+  KeyName:
+    Description: The EC2 Key Pair to allow SSH access to the instance
+    Type: String
+    Default: "AWS-EC2-Rinna-Kawaguchi"
+
+  MyIP:
+    Description: IP address allowed to access EC2
+    Type: String
+    Default: "0.0.0.0/0"
+
+  TagKey:
+    Description: key for cost allocation tags
+    Type: String
+    Default: "RaiseTech"
+
+Resources:
+  # ------------------------------------------------------------#
+  #  SecurityGroup(for Control node EC2)
+  # ------------------------------------------------------------#
+  CfnCiTestEC2SecGrp:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: !Sub "${PJName}-ec2-sg"
+      GroupDescription: SecurityGroup for EC2
+      VpcId: !ImportValue CfnVPC-ID
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: !Ref MyIP
+        # - IpProtocol: tcp
+        #   FromPort: 80
+        #   ToPort: 80
+        #   SourceSecurityGroupId: !Ref CfnALBSecGrp
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: !Ref MyIP
+      Tags:
+        - Key: !Ref TagKey
+          Value: !Ref PJName
+
+  # ------------------------------------------------------------#
+  #  EC2 Instance
+  # ------------------------------------------------------------#
+  CfnCiTestEC2:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-0037237888be2fe22
+      KeyName: !Ref KeyName
+      InstanceType: t2.micro
+      NetworkInterfaces:
+        - AssociatePublicIpAddress: "true"
+          DeviceIndex: "0"
+          GroupSet:
+            - !Ref CfnCiTestEC2SecGrp
+          SubnetId: !ImportValue CfnPublicSubnet1A-ID
+      BlockDeviceMappings:
+        - DeviceName: /dev/xvda
+          Ebs:
+            VolumeType: gp2
+            DeleteOnTermination: true
+            VolumeSize: 8
+      UserData:
+        Fn::Base64: |
+          #!/bin/bash
+          sudo yum update -y
+      Tags:
+        - Key: Name
+          Value: !Sub "${PJName}-ec2"
+        - Key: !Ref TagKey
+          Value: !Ref PJName
