@@ -9,7 +9,7 @@ Parameters:
   KeyName:
     Description: The EC2 Key Pair to allow SSH access to the instance
     Type: String
-    Default: "AWS-EC2-Rinna-Kawaguchi"
+    Default: "circleci-key-pair"
 
   MyIP:
     Description: IP address allowed to access EC2
