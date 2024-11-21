@@ -4,7 +4,7 @@ Description: create EC2, RDS, ALB, S3
 Parameters:
   PJName:
     Type: String
-    Default: "aws-lecture13-ci-test"
+    Default: "aws-lecture13-ci"
 
   KeyName:
     Description: The EC2 Key Pair to allow SSH access to the instance
@@ -23,14 +23,24 @@ Parameters:
 
 Resources:
   # ------------------------------------------------------------#
-  #  SecurityGroup(for Control node EC2)
+  #  InstanceProfile
   # ------------------------------------------------------------#
-  CfnCiTestEC2SecGrp:
+  CfnCIS3AccessInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: "/"
+      Roles:
+        - !ImportValue CfnCIS3AccessRole-role-name
+
+  # ------------------------------------------------------------#
+  #  SecurityGroup(for EC2)
+  # ------------------------------------------------------------#
+  CfnCIEC2SecGrp:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupName: !Sub "${PJName}-ec2-sg"
       GroupDescription: SecurityGroup for EC2
-      VpcId: !ImportValue CfnVPC-ID
+      VpcId: !ImportValue CfnCIVPC-ID
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 22
@@ -51,18 +61,19 @@ Resources:
   # ------------------------------------------------------------#
   #  EC2 Instance
   # ------------------------------------------------------------#
-  CfnCiTestEC2:
+  CfnCIEC2:
     Type: AWS::EC2::Instance
     Properties:
       ImageId: ami-0037237888be2fe22
+      IamInstanceProfile: !Ref CfnCIS3AccessInstanceProfile
       KeyName: !Ref KeyName
       InstanceType: t2.micro
       NetworkInterfaces:
         - AssociatePublicIpAddress: "true"
           DeviceIndex: "0"
           GroupSet:
-            - !Ref CfnCiTestEC2SecGrp
-          SubnetId: !ImportValue CfnPublicSubnet1A-ID
+            - !Ref CfnCIEC2SecGrp
+          SubnetId: !ImportValue CfnCIPublicSubnet1A-ID
       BlockDeviceMappings:
         - DeviceName: /dev/xvda
           Ebs:
@@ -78,3 +89,20 @@ Resources:
           Value: !Sub "${PJName}-ec2"
         - Key: !Ref TagKey
           Value: !Ref PJName
+
+  # ------------------------------------------------------------#
+  #  ElasticIP
+  # ------------------------------------------------------------#
+  CfnCIElasticIP:
+    Type: "AWS::EC2::EIP"
+    Properties:
+      Domain: vpc
+      Tags:
+        - Key: !Ref TagKey
+          Value: !Ref PJName
+
+  CfnCIEIPAssociation:
+    Type: AWS::EC2::EIPAssociation
+    Properties:
+      InstanceId: !Ref CfnCIEC2
+      EIP: !Ref CfnCIElasticIP
