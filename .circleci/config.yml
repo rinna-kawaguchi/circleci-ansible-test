@@ -26,7 +26,7 @@ jobs:
           name: Deploy to aws from template
           command:  |
             set -x
-            aws cloudformation deploy --template-file cloudformation/cfn_ec2.yml --stack-name circleci-ec2
+            aws cloudformation deploy --template-file cloudformation/cfn_network.yml --stack-name circleci-network
   execute-ansible:
     executor: ansible-playbook/default
     steps:
