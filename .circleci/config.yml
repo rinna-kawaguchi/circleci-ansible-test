@@ -27,7 +27,7 @@ jobs:
           command:  |
             set -x
             aws cloudformation deploy --template-file cloudformation/cfn_network.yml --stack-name circleci-network
-            aws cloudformation deploy --template-file cloudformation/cfn_iam_role.yml --stack-name circleci-iam-role
+            aws cloudformation deploy --template-file cloudformation/cfn_iam_role.yml --stack-name circleci-iam-role --capabilities CAPABILITY_NAMED_IAM
   execute-ansible:
     executor: ansible-playbook/default
     steps:
