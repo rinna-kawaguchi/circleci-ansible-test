@@ -27,6 +27,7 @@ jobs:
           command:  |
             set -x
             aws cloudformation deploy --template-file cloudformation/cfn_network.yml --stack-name circleci-network
+            aws cloudformation deploy --template-file cloudformation/cfn_iam_role.yml --stack-name circleci-iam-role
   execute-ansible:
     executor: ansible-playbook/default
     steps:
@@ -46,6 +47,6 @@ workflows:
     # Inside the workflow, you define the jobs you want to run.
     jobs:
       - execute-cloudformation
-      - execute-ansible:
-          requires:
-            - execute-cloudformation
+#      - execute-ansible:
+#          requires:
+#            - execute-cloudformation

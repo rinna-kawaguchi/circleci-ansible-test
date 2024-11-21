@@ -4,7 +4,7 @@ Description: create VPC
 Parameters:
   PJName:
     Type: String
-    Default: "aws-lecture13-ci-test"
+    Default: "aws-lecture13-ci"
 
   TagKey:
     Description: key for cost allocation tags
