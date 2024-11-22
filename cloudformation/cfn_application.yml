@@ -4,11 +4,12 @@ Description: create EC2, RDS, ALB, S3
 Parameters:
   PJName:
     Type: String
-    Default: "aws-lecture13"
+    Default: "aws-lecture13-ci"
 
   KeyName:
     Description: The EC2 Key Pair to allow SSH access to the instance
-    Type: "AWS::EC2::KeyPair::KeyName"
+    Type: String
+    Default: "circleci-key-pair"
 
   MyIP:
     Description: IP address allowed to access EC2
@@ -24,22 +25,22 @@ Resources:
   # ------------------------------------------------------------#
   #  InstanceProfile
   # ------------------------------------------------------------#
-  # CfnS3AccessInstanceProfile:
-  #   Type: AWS::IAM::InstanceProfile
-  #   Properties:
-  #     Path: "/"
-  #     Roles:
-  #       - !ImportValue CfnS3AccessRole-role-name
+  CfnCIS3AccessInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: "/"
+      Roles:
+        - !ImportValue CfnCIS3AccessRole-role-name
 
   # ------------------------------------------------------------#
-  #  SecurityGroup(for Control node EC2)
+  #  SecurityGroup(for EC2)
   # ------------------------------------------------------------#
-  CfnControlNodeEC2SecGrp:
+  CfnCIEC2SecGrp:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupName: !Sub "${PJName}-Control-node-ec2-sg"
-      GroupDescription: SecurityGroup for Control node EC2
-      VpcId: !ImportValue CfnVPC-ID
+      GroupName: !Sub "${PJName}-ec2-sg"
+      GroupDescription: SecurityGroup for EC2
+      VpcId: !ImportValue CfnCIVPC-ID
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 22
@@ -48,7 +49,7 @@ Resources:
         # - IpProtocol: tcp
         #   FromPort: 80
         #   ToPort: 80
-        #   SourceSecurityGroupId: !Ref CfnALBSecGrp
+        #   SourceSecurityGroupId: !Ref CfnCIALBSecGrp
         - IpProtocol: tcp
           FromPort: 80
           ToPort: 80
@@ -60,19 +61,19 @@ Resources:
   # ------------------------------------------------------------#
   #  EC2 Instance
   # ------------------------------------------------------------#
-  CfnControlNodeEC2:
+  CfnCIEC2:
     Type: AWS::EC2::Instance
     Properties:
       ImageId: ami-0037237888be2fe22
-      # IamInstanceProfile: !Ref CfnS3AccessInstanceProfile
+      IamInstanceProfile: !Ref CfnCIS3AccessInstanceProfile
       KeyName: !Ref KeyName
       InstanceType: t2.micro
       NetworkInterfaces:
         - AssociatePublicIpAddress: "true"
           DeviceIndex: "0"
           GroupSet:
-            - !Ref CfnControlNodeEC2SecGrp
-          SubnetId: !ImportValue CfnPublicSubnet1A-ID
+            - !Ref CfnCIEC2SecGrp
+          SubnetId: !ImportValue CfnCIPublicSubnet1A-ID
       BlockDeviceMappings:
         - DeviceName: /dev/xvda
           Ebs:
@@ -83,278 +84,196 @@ Resources:
         Fn::Base64: |
           #!/bin/bash
           sudo yum update -y
-          sudo yum install -y ansible
-
-          # #install nginx
-          # sudo amazon-linux-extras install nginx1
-          # sudo systemctl start nginx
-
-          # #install MySQL client
-          # sudo yum remove mariadb-libs -y
-          # sudo yum localinstall -y https://dev.mysql.com/get/mysql80-community-release-el7-7.noarch.rpm
-          # sudo rpm --import https://repo.mysql.com/RPM-GPG-KEY-mysql-2023
-          # sudo yum install -y mysql-community-client
-
-          # #install AWS CLI version2
-          # sudo yum remove -y awscli
-          # curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-          # unzip awscliv2.zip
-          # sudo ./aws/install
       Tags:
         - Key: Name
-          Value: !Sub "${PJName}-Control-node-ec2"
+          Value: !Sub "${PJName}-ec2"
         - Key: !Ref TagKey
           Value: !Ref PJName
 
   # ------------------------------------------------------------#
-  #  SecurityGroup(for Managed node EC2)
+  #  ElasticIP
   # ------------------------------------------------------------#
-  CfnManagedNodeEC2SecGrp:
-    Type: AWS::EC2::SecurityGroup
+  CfnCIElasticIP:
+    Type: "AWS::EC2::EIP"
     Properties:
-      GroupName: !Sub "${PJName}-Managed-node-ec2-sg"
-      GroupDescription: SecurityGroup for Managed node EC2
-      VpcId: !ImportValue CfnVPC-ID
-      SecurityGroupIngress:
-        - IpProtocol: tcp
-          FromPort: 22
-          ToPort: 22
-          CidrIp: !Ref MyIP
-        - IpProtocol: tcp
-          FromPort: 22
-          ToPort: 22
-          SourceSecurityGroupId: !Ref CfnControlNodeEC2SecGrp
-        # - IpProtocol: tcp
-        #   FromPort: 22
-        #   ToPort: 22
-        #   CidrIp: 0.0.0.0/0
-        # - IpProtocol: tcp
-        #   FromPort: 80
-        #   ToPort: 80
-        #   SourceSecurityGroupId: !Ref CfnALBSecGrp
-        - IpProtocol: tcp
-          FromPort: 80
-          ToPort: 80
-          CidrIp: !Ref MyIP
+      Domain: vpc
       Tags:
         - Key: !Ref TagKey
           Value: !Ref PJName
 
-  # ------------------------------------------------------------#
-  #  EC2 Instance (Managed node)
-  # ------------------------------------------------------------#
-  CfnManagedNodeEC2:
-    Type: AWS::EC2::Instance
+  CfnCIEIPAssociation:
+    Type: AWS::EC2::EIPAssociation
     Properties:
-      ImageId: ami-0037237888be2fe22
-      # IamInstanceProfile: !Ref CfnS3AccessInstanceProfile
-      KeyName: !Ref KeyName
-      InstanceType: t2.micro
-      NetworkInterfaces:
-        - AssociatePublicIpAddress: "true"
-          DeviceIndex: "0"
-          GroupSet:
-            - !Ref CfnManagedNodeEC2SecGrp
-          SubnetId: !ImportValue CfnPublicSubnet1A-ID
-      BlockDeviceMappings:
-        - DeviceName: /dev/xvda
-          Ebs:
-            VolumeType: gp2
-            DeleteOnTermination: true
-            VolumeSize: 8
-      UserData:
-        Fn::Base64: |
-          #!/bin/bash
-          sudo yum update -y
-
-          # #install nginx
-          # sudo amazon-linux-extras install nginx1
-          # sudo systemctl start nginx
-
-          # #install MySQL client
-          # sudo yum remove mariadb-libs -y
-          # sudo yum localinstall -y https://dev.mysql.com/get/mysql80-community-release-el7-7.noarch.rpm
-          # sudo rpm --import https://repo.mysql.com/RPM-GPG-KEY-mysql-2023
-          # sudo yum install -y mysql-community-client
-
-          # #install AWS CLI version2
-          # sudo yum remove -y awscli
-          # curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-          # unzip awscliv2.zip
-          # sudo ./aws/install
-      Tags:
-        - Key: Name
-          Value: !Sub "${PJName}-Managed-node-ec2"
-        - Key: !Ref TagKey
-          Value: !Ref PJName
+      InstanceId: !Ref CfnCIEC2
+      EIP: !Ref CfnCIElasticIP
 
   # ------------------------------------------------------------#
   #  SecurityGroup(for RDS)
   # ------------------------------------------------------------#
-  # CfnRDSSecGrp:
-  #   Type: AWS::EC2::SecurityGroup
-  #   Properties:
-  #     GroupName: !Sub "${PJName}-rds-sg"
-  #     GroupDescription: SecurityGroup for RDS
-  #     VpcId: !ImportValue CfnVPC-ID
-  #     SecurityGroupIngress:
-  #       - IpProtocol: tcp
-  #         FromPort: 3306
-  #         ToPort: 3306
-  #         SourceSecurityGroupId: !Ref CfnEC2SecGrp
-  #     Tags:
-  #       - Key: !Ref TagKey
-  #         Value: !Ref PJName
+  CfnCIRDSSecGrp:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: !Sub "${PJName}-rds-sg"
+      GroupDescription: SecurityGroup for RDS
+      VpcId: !ImportValue CfnCIVPC-ID
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 3306
+          ToPort: 3306
+          SourceSecurityGroupId: !Ref CfnCIEC2SecGrp
+      Tags:
+        - Key: !Ref TagKey
+          Value: !Ref PJName
 
   # ------------------------------------------------------------#
   #  DBSubnetGroup
   # ------------------------------------------------------------#
-  # CfnRDSSubnetGroup:
-  #   Type: "AWS::RDS::DBSubnetGroup"
-  #   Properties:
-  #     DBSubnetGroupName: !Sub "${PJName}-RDS-SubnetGroup"
-  #     DBSubnetGroupDescription: !Sub "${PJName}-RDS-SubnetGroup"
-  #     SubnetIds:
-  #       - !ImportValue CfnPrivateSubnet1A-ID
-  #       - !ImportValue CfnPrivateSubnet1C-ID
-  #     Tags:
-  #       - Key: !Ref TagKey
-  #         Value: !Ref PJName
+  CfnCIRDSSubnetGroup:
+    Type: "AWS::RDS::DBSubnetGroup"
+    Properties:
+      DBSubnetGroupName: !Sub "${PJName}-RDS-SubnetGroup"
+      DBSubnetGroupDescription: !Sub "${PJName}-RDS-SubnetGroup"
+      SubnetIds:
+        - !ImportValue CfnCIPrivateSubnet1A-ID
+        - !ImportValue CfnCIPrivateSubnet1C-ID
+      Tags:
+        - Key: !Ref TagKey
+          Value: !Ref PJName
 
   # ------------------------------------------------------------#
   #  Secret (for RDS password)
   # ------------------------------------------------------------#
-  # CfnRDSSecret:
-  #   Type: "AWS::SecretsManager::Secret"
-  #   Properties:
-  #     Name: "RDSSecret"
-  #     Description: "RDS password for my RDS instance"
-  #     GenerateSecretString:
-  #       SecretStringTemplate: '{"username": "root"}'
-  #       GenerateStringKey: "password"
-  #       PasswordLength: 32
-  #       ExcludeCharacters: '"@/\'
-  #     Tags:
-  #       - Key: !Ref TagKey
-  #         Value: !Ref PJName
+  CfnCIRDSSecret:
+    Type: "AWS::SecretsManager::Secret"
+    Properties:
+      Name: !Sub "${PJName}-rds-secret"
+      Description: "RDS password for my RDS instance"
+      GenerateSecretString:
+        SecretStringTemplate: '{"username": "root"}'
+        GenerateStringKey: "password"
+        PasswordLength: 32
+        ExcludeCharacters: '"@/\'
+      Tags:
+        - Key: !Ref TagKey
+          Value: !Ref PJName
 
   # ------------------------------------------------------------#
   #  RDS DBInstance
   # ------------------------------------------------------------#
-  # CfnRDSInstance:
-  #   Type: "AWS::RDS::DBInstance"
-  #   Properties:
-  #     DBInstanceIdentifier: !Sub "${PJName}-RDS"
-  #     Engine: MySQL
-  #     EngineVersion: "8.0.39"
-  #     DBInstanceClass: db.t3.micro
-  #     AllocatedStorage: "20"
-  #     StorageType: gp2
-  #     MasterUsername: !Sub "{{resolve:secretsmanager:${CfnRDSSecret}:SecretString:username}}"
-  #     MasterUserPassword: !Sub "{{resolve:secretsmanager:${CfnRDSSecret}:SecretString:password}}"
-  #     PubliclyAccessible: false
-  #     MultiAZ: false
-  #     AutoMinorVersionUpgrade: false
-  #     VPCSecurityGroups:
-  #       - !Ref CfnRDSSecGrp
-  #     CopyTagsToSnapshot: true
-  #     BackupRetentionPeriod: 0
-  #     DBSubnetGroupName: !Ref CfnRDSSubnetGroup
-  #     AvailabilityZone: !Select
-  #       - 0
-  #       - Fn::GetAZs: !Ref AWS::Region
-  #     Tags:
-  #       - Key: !Ref TagKey
-  #         Value: !Ref PJName
+  CfnCIRDSInstance:
+    Type: "AWS::RDS::DBInstance"
+    Properties:
+      DBInstanceIdentifier: !Sub "${PJName}-RDS"
+      Engine: MySQL
+      EngineVersion: "8.0.39"
+      DBInstanceClass: db.t3.micro
+      AllocatedStorage: "20"
+      StorageType: gp2
+      MasterUsername: !Sub "{{resolve:secretsmanager:${CfnCIRDSSecret}:SecretString:username}}"
+      MasterUserPassword: !Sub "{{resolve:secretsmanager:${CfnCIRDSSecret}:SecretString:password}}"
+      PubliclyAccessible: false
+      MultiAZ: false
+      AutoMinorVersionUpgrade: false
+      VPCSecurityGroups:
+        - !Ref CfnCIRDSSecGrp
+      CopyTagsToSnapshot: true
+      BackupRetentionPeriod: 0
+      DBSubnetGroupName: !Ref CfnCIRDSSubnetGroup
+      AvailabilityZone: !Select
+        - 0
+        - Fn::GetAZs: !Ref AWS::Region
+      Tags:
+        - Key: !Ref TagKey
+          Value: !Ref PJName
 
   # ------------------------------------------------------------#
   #  SecurityGroup(for ALB)
   # ------------------------------------------------------------#
-  # CfnALBSecGrp:
-  #   Type: "AWS::EC2::SecurityGroup"
-  #   Properties:
-  #     GroupName: !Sub "${PJName}-alb-sg"
-  #     GroupDescription: SecurityGroup for ALB
-  #     VpcId: !ImportValue CfnVPC-ID
-  #     SecurityGroupIngress:
-  #       - IpProtocol: tcp
-  #         FromPort: 80
-  #         ToPort: 80
-  #         CidrIp: "0.0.0.0/0"
-  #     Tags:
-  #       - Key: !Ref TagKey
-  #         Value: !Ref PJName
+  CfnCIALBSecGrp:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupName: !Sub "${PJName}-alb-sg"
+      GroupDescription: SecurityGroup for ALB
+      VpcId: !ImportValue CfnCIVPC-ID
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: "0.0.0.0/0"
+      Tags:
+        - Key: !Ref TagKey
+          Value: !Ref PJName
 
   # ------------------------------------------------------------#
   #  TargetGroup
   # ------------------------------------------------------------#
-  # CfnTargetGroup:
-  #   Type: "AWS::ElasticLoadBalancingV2::TargetGroup"
-  #   Properties:
-  #     Name: !Sub "${PJName}-tg"
-  #     VpcId: !ImportValue CfnVPC-ID
-  #     Protocol: HTTP
-  #     Port: 80
-  #     TargetType: instance
-  #     HealthCheckPath: "/"
-  #     HealthyThresholdCount: 5
-  #     UnhealthyThresholdCount: 2
-  #     HealthCheckTimeoutSeconds: 5
-  #     HealthCheckIntervalSeconds: 30
-  #     Matcher:
-  #       HttpCode: 200
-  #     Targets:
-  #       - Id: !Ref CfnEC2
-  #         Port: 80
-  #     Tags:
-  #       - Key: !Ref TagKey
-  #         Value: !Ref PJName
+  CfnCITargetGroup:
+    Type: "AWS::ElasticLoadBalancingV2::TargetGroup"
+    Properties:
+      Name: !Sub "${PJName}-tg"
+      VpcId: !ImportValue CfnCIVPC-ID
+      Protocol: HTTP
+      Port: 80
+      TargetType: instance
+      HealthCheckPath: "/"
+      HealthyThresholdCount: 5
+      UnhealthyThresholdCount: 2
+      HealthCheckTimeoutSeconds: 5
+      HealthCheckIntervalSeconds: 30
+      Matcher:
+        HttpCode: 200
+      Targets:
+        - Id: !Ref CfnCIEC2
+          Port: 80
+      Tags:
+        - Key: !Ref TagKey
+          Value: !Ref PJName
 
   # ------------------------------------------------------------#
   #  LoadBalancer
   # ------------------------------------------------------------#
-  # CfnALB:
-  #   Type: "AWS::ElasticLoadBalancingV2::LoadBalancer"
-  #   Properties:
-  #     Name: !Sub "${PJName}-alb"
-  #     Type: "application"
-  #     IpAddressType: ipv4
-  #     Scheme: "internet-facing"
-  #     SecurityGroups:
-  #       - !Ref CfnALBSecGrp
-  #     Subnets:
-  #       - !ImportValue CfnPublicSubnet1A-ID
-  #       - !ImportValue CfnPublicSubnet1C-ID
-  #     Tags:
-  #       - Key: !Ref TagKey
-  #         Value: !Ref PJName
+  CfnCIALB:
+    Type: "AWS::ElasticLoadBalancingV2::LoadBalancer"
+    Properties:
+      Name: !Sub "${PJName}-alb"
+      Type: "application"
+      IpAddressType: ipv4
+      Scheme: "internet-facing"
+      SecurityGroups:
+        - !Ref CfnCIALBSecGrp
+      Subnets:
+        - !ImportValue CfnCIPublicSubnet1A-ID
+        - !ImportValue CfnCIPublicSubnet1C-ID
+      Tags:
+        - Key: !Ref TagKey
+          Value: !Ref PJName
 
   # ------------------------------------------------------------#
   #  Listener
   # ------------------------------------------------------------#
-  # CfnALBListener:
-  #   Type: "AWS::ElasticLoadBalancingV2::Listener"
-  #   Properties:
-  #     DefaultActions:
-  #       - Type: forward
-  #         TargetGroupArn: !Ref CfnTargetGroup
-  #     LoadBalancerArn: !Ref CfnALB
-  #     Port: 80
-  #     Protocol: HTTP
+  CfnCIALBListener:
+    Type: "AWS::ElasticLoadBalancingV2::Listener"
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref CfnCITargetGroup
+      LoadBalancerArn: !Ref CfnCIALB
+      Port: 80
+      Protocol: HTTP
 
   # ------------------------------------------------------------#
   #  S3 Bucket
   # ------------------------------------------------------------#
-  # CfnS3Bucket:
-  #   Type: AWS::S3::Bucket
-  #   DeletionPolicy: Delete
-  #   Properties:
-  #     BucketName: !Sub "${PJName}-bucket"
-  #     PublicAccessBlockConfiguration:
-  #       BlockPublicAcls: true
-  #       BlockPublicPolicy: true
-  #       IgnorePublicAcls: true
-  #       RestrictPublicBuckets: true
-  #     Tags:
-  #       - Key: !Ref TagKey
-  #         Value: !Ref PJName
+  CfnCIS3Bucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Delete
+    Properties:
+      BucketName: !Sub "${PJName}-bucket"
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      Tags:
+        - Key: !Ref TagKey
+          Value: !Ref PJName
