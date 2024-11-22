@@ -26,7 +26,9 @@ jobs:
           name: Deploy to aws from template
           command:  |
             set -x
-            aws cloudformation deploy --template-file cloudformation/cfn_ec2.yml --stack-name circleci-ec2
+            aws cloudformation deploy --template-file cloudformation/cfn_network.yml --stack-name circleci-network
+            aws cloudformation deploy --template-file cloudformation/cfn_iam_role.yml --stack-name circleci-iam-role --capabilities CAPABILITY_NAMED_IAM
+            aws cloudformation deploy --template-file cloudformation/cfn_application.yml --stack-name circleci-application --capabilities CAPABILITY_NAMED_IAM
   execute-ansible:
     executor: ansible-playbook/default
     steps:
@@ -46,6 +48,6 @@ workflows:
     # Inside the workflow, you define the jobs you want to run.
     jobs:
       - execute-cloudformation
-      - execute-ansible:
-          requires:
-            - execute-cloudformation
+#      - execute-ansible:
+#          requires:
+#            - execute-cloudformation

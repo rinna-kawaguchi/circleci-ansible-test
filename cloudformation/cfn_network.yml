@@ -4,7 +4,7 @@ Description: create VPC
 Parameters:
   PJName:
     Type: String
-    Default: "aws-lecture13"
+    Default: "aws-lecture13-ci"
 
   TagKey:
     Description: key for cost allocation tags
@@ -15,7 +15,7 @@ Resources:
   # ------------------------------------------------------------#
   #  VPC
   # ------------------------------------------------------------#
-  CfnVPC:
+  CfnCIVPC:
     Type: AWS::EC2::VPC
     Properties:
       CidrBlock: "10.0.0.0/16"
@@ -28,7 +28,7 @@ Resources:
   # ------------------------------------------------------------#
   #  InternetGateway
   # ------------------------------------------------------------#
-  CfnInternetGateway:
+  CfnCIInternetGateway:
     Type: AWS::EC2::InternetGateway
     Properties:
       Tags:
@@ -37,65 +37,65 @@ Resources:
         - Key: !Ref TagKey
           Value: !Ref PJName
 
-  CfnInternetGatewayAttachment:
+  CfnCIInternetGatewayAttachment:
     Type: AWS::EC2::VPCGatewayAttachment
     Properties:
-      InternetGatewayId: !Ref CfnInternetGateway
-      VpcId: !Ref CfnVPC
+      InternetGatewayId: !Ref CfnCIInternetGateway
+      VpcId: !Ref CfnCIVPC
 
   # ------------------------------------------------------------#
   #  Subnet
   # ------------------------------------------------------------#
-  CfnPublicSubnet1A:
+  CfnCIPublicSubnet1A:
     Type: AWS::EC2::Subnet
     Properties:
       AvailabilityZone: !Select
         - 0
         - Fn::GetAZs: !Ref AWS::Region
       CidrBlock: 10.0.0.0/20
-      VpcId: !Ref CfnVPC
+      VpcId: !Ref CfnCIVPC
       Tags:
         - Key: Name
           Value: !Sub "${PJName}-public-subnet-1a"
         - Key: !Ref TagKey
           Value: !Ref PJName
 
-  CfnPublicSubnet1C:
+  CfnCIPublicSubnet1C:
     Type: AWS::EC2::Subnet
     Properties:
       AvailabilityZone: !Select
         - 1
         - Fn::GetAZs: !Ref AWS::Region
       CidrBlock: 10.0.16.0/20
-      VpcId: !Ref CfnVPC
+      VpcId: !Ref CfnCIVPC
       Tags:
         - Key: Name
           Value: !Sub "${PJName}-public-subnet-1c"
         - Key: !Ref TagKey
           Value: !Ref PJName
 
-  CfnPrivateSubnet1A:
+  CfnCIPrivateSubnet1A:
     Type: AWS::EC2::Subnet
     Properties:
       AvailabilityZone: !Select
         - 0
         - Fn::GetAZs: !Ref AWS::Region
       CidrBlock: 10.0.128.0/20
-      VpcId: !Ref CfnVPC
+      VpcId: !Ref CfnCIVPC
       Tags:
         - Key: Name
           Value: !Sub "${PJName}-private-subnet-1a"
         - Key: !Ref TagKey
           Value: !Ref PJName
 
-  CfnPrivateSubnet1C:
+  CfnCIPrivateSubnet1C:
     Type: AWS::EC2::Subnet
     Properties:
       AvailabilityZone: !Select
         - 1
         - Fn::GetAZs: !Ref AWS::Region
       CidrBlock: 10.0.144.0/20
-      VpcId: !Ref CfnVPC
+      VpcId: !Ref CfnCIVPC
       Tags:
         - Key: Name
           Value: !Sub "${PJName}-private-subnet-1c"
@@ -103,84 +103,84 @@ Resources:
           Value: !Ref PJName
 
   # ------------------------------------------------------------#
-  #  RouteTable　
+  #  RouteTable
   # ------------------------------------------------------------#
-  CfnPublicRouteTable:
+  CfnCIPublicRouteTable:
     Type: AWS::EC2::RouteTable
     Properties:
-      VpcId: !Ref CfnVPC
+      VpcId: !Ref CfnCIVPC
       Tags:
         - Key: Name
           Value: !Sub "${PJName}-public-route-table"
         - Key: !Ref TagKey
           Value: !Ref PJName
 
-  CfnPrivateRouteTable:
+  CfnCIPrivateRouteTable:
     Type: AWS::EC2::RouteTable
     Properties:
-      VpcId: !Ref CfnVPC
+      VpcId: !Ref CfnCIVPC
       Tags:
         - Key: Name
           Value: !Sub "${PJName}-private-route-table"
         - Key: !Ref TagKey
           Value: !Ref PJName
 
-  PublicRoute:
+  CfnCIPublicRoute:
     Type: AWS::EC2::Route
     Properties:
-      RouteTableId: !Ref CfnPublicRouteTable
+      RouteTableId: !Ref CfnCIPublicRouteTable
       DestinationCidrBlock: "0.0.0.0/0"
-      GatewayId: !Ref CfnInternetGateway
+      GatewayId: !Ref CfnCIInternetGateway
 
-  CfnPublicSubnetRouteTableAssociation1A:
+  CfnCIPublicSubnetRouteTableAssociation1A:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      SubnetId: !Ref CfnPublicSubnet1A
-      RouteTableId: !Ref CfnPublicRouteTable
+      SubnetId: !Ref CfnCIPublicSubnet1A
+      RouteTableId: !Ref CfnCIPublicRouteTable
 
-  CfnPublicSubnetRouteTableAssociation1C:
+  CfnCIPublicSubnetRouteTableAssociation1C:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      SubnetId: !Ref CfnPublicSubnet1C
-      RouteTableId: !Ref CfnPublicRouteTable
+      SubnetId: !Ref CfnCIPublicSubnet1C
+      RouteTableId: !Ref CfnCIPublicRouteTable
 
-  CfnPrivateSubnetRouteTableAssociation1A:
+  CfnCIPrivateSubnetRouteTableAssociation1A:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      SubnetId: !Ref CfnPrivateSubnet1A
-      RouteTableId: !Ref CfnPrivateRouteTable
+      SubnetId: !Ref CfnCIPrivateSubnet1A
+      RouteTableId: !Ref CfnCIPrivateRouteTable
 
-  CfnPrivateSubnetRouteTableAssociation1C:
+  CfnCIPrivateSubnetRouteTableAssociation1C:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      SubnetId: !Ref CfnPrivateSubnet1C
-      RouteTableId: !Ref CfnPrivateRouteTable
+      SubnetId: !Ref CfnCIPrivateSubnet1C
+      RouteTableId: !Ref CfnCIPrivateRouteTable
 
 # ------------------------------------------------------------#
 #  Outputs
 # ------------------------------------------------------------#
 Outputs:
-  CfnVPC:
-    Value: !Ref CfnVPC
+  CfnCIVPC:
+    Value: !Ref CfnCIVPC
     Export:
-      Name: CfnVPC-ID
+      Name: CfnCIVPC-ID
 
-  CfnPublicSubnet1A:
-    Value: !Ref CfnPublicSubnet1A
+  CfnCIPublicSubnet1A:
+    Value: !Ref CfnCIPublicSubnet1A
     Export:
-      Name: CfnPublicSubnet1A-ID
+      Name: CfnCIPublicSubnet1A-ID
 
-  CfnPublicSubnet1C:
-    Value: !Ref CfnPublicSubnet1C
+  CfnCIPublicSubnet1C:
+    Value: !Ref CfnCIPublicSubnet1C
     Export:
-      Name: CfnPublicSubnet1C-ID
+      Name: CfnCIPublicSubnet1C-ID
 
-  CfnPrivateSubnet1A:
-    Value: !Ref CfnPrivateSubnet1A
+  CfnCIPrivateSubnet1A:
+    Value: !Ref CfnCIPrivateSubnet1A
     Export:
-      Name: CfnPrivateSubnet1A-ID
+      Name: CfnCIPrivateSubnet1A-ID
 
-  CfnPrivateSubnet1C:
-    Value: !Ref CfnPrivateSubnet1C
+  CfnCIPrivateSubnet1C:
+    Value: !Ref CfnCIPrivateSubnet1C
     Export:
-      Name: CfnPrivateSubnet1C-ID
+      Name: CfnCIPrivateSubnet1C-ID
