@@ -1,12 +1,30 @@
 - hosts: all
   become: yes
   tasks:
+    # Update yum
     - name: Update yum
       yum:
         name: "*"
         state: latest
+    # Install git
     - name: Install git
       yum:
         name: git
         state: present
         lock_timeout: 180
+
+    # Install rbenv
+    - name: Clone rbenv repository
+      git:
+        repo: https://github.com/rbenv/rbenv.git
+        dest: ~/.rbenv
+        version: HEAD
+
+    - name: Initialize rbenv
+      shell: |
+        ~/.rbenv/bin/rbenv init
+        echo 'export PATH="$HOME/.rbenv/bin:$PATH"' >> ~/.bash_profile
+        echo 'eval "$(rbenv init -)"' >> ~/.bash_profile
+        source ~/.bash_profile
+      args:
+        executable: /bin/bash
