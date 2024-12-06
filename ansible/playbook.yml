@@ -28,3 +28,10 @@
         source ~/.bash_profile
       args:
         executable: /bin/bash
+
+    # Install ruby-build
+    - name: Clone ruby-build repository
+      git:
+        repo: https://github.com/rbenv/ruby-build.git
+        dest: ~/.rbenv/plugins/ruby-build
+        version: HEAD
