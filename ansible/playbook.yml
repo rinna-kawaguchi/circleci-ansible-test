@@ -35,3 +35,16 @@
         repo: https://github.com/rbenv/ruby-build.git
         dest: ~/.rbenv/plugins/ruby-build
         version: HEAD
+
+    # Install Ruby dependencies
+    - name: Install Ruby dependencies
+      yum:
+        name:
+          - gcc-c++
+          - glibc-headers
+          - openssl-devel
+          - libyaml-devel
+          - readline-devel
+          - zlib-devel
+          - libffi-devel
+        state: present
