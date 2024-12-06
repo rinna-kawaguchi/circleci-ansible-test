@@ -1,6 +1,10 @@
 - hosts: all
   become: yes
   tasks:
+    - name: Update yum
+      yum:
+        name: "*"
+        state: latest
     - name: Install git
       yum:
         name: git
