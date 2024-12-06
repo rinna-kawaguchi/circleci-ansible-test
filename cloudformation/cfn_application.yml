@@ -54,6 +54,10 @@ Resources:
           FromPort: 80
           ToPort: 80
           CidrIp: !Ref MyIP
+        - IpProtocol: tcp
+          FromPort: 3000
+          ToPort: 3000
+          CidrIp: !Ref MyIP
       Tags:
         - Key: !Ref TagKey
           Value: !Ref PJName
@@ -189,91 +193,91 @@ Resources:
   # ------------------------------------------------------------#
   #  SecurityGroup(for ALB)
   # ------------------------------------------------------------#
-  CfnCIALBSecGrp:
-    Type: "AWS::EC2::SecurityGroup"
-    Properties:
-      GroupName: !Sub "${PJName}-alb-sg"
-      GroupDescription: SecurityGroup for ALB
-      VpcId: !ImportValue CfnCIVPC-ID
-      SecurityGroupIngress:
-        - IpProtocol: tcp
-          FromPort: 80
-          ToPort: 80
-          CidrIp: "0.0.0.0/0"
-      Tags:
-        - Key: !Ref TagKey
-          Value: !Ref PJName
-
-  # ------------------------------------------------------------#
-  #  TargetGroup
-  # ------------------------------------------------------------#
-  CfnCITargetGroup:
-    Type: "AWS::ElasticLoadBalancingV2::TargetGroup"
-    Properties:
-      Name: !Sub "${PJName}-tg"
-      VpcId: !ImportValue CfnCIVPC-ID
-      Protocol: HTTP
-      Port: 80
-      TargetType: instance
-      HealthCheckPath: "/"
-      HealthyThresholdCount: 5
-      UnhealthyThresholdCount: 2
-      HealthCheckTimeoutSeconds: 5
-      HealthCheckIntervalSeconds: 30
-      Matcher:
-        HttpCode: 200
-      Targets:
-        - Id: !Ref CfnCIEC2
-          Port: 80
-      Tags:
-        - Key: !Ref TagKey
-          Value: !Ref PJName
-
-  # ------------------------------------------------------------#
-  #  LoadBalancer
-  # ------------------------------------------------------------#
-  CfnCIALB:
-    Type: "AWS::ElasticLoadBalancingV2::LoadBalancer"
-    Properties:
-      Name: !Sub "${PJName}-alb"
-      Type: "application"
-      IpAddressType: ipv4
-      Scheme: "internet-facing"
-      SecurityGroups:
-        - !Ref CfnCIALBSecGrp
-      Subnets:
-        - !ImportValue CfnCIPublicSubnet1A-ID
-        - !ImportValue CfnCIPublicSubnet1C-ID
-      Tags:
-        - Key: !Ref TagKey
-          Value: !Ref PJName
-
-  # ------------------------------------------------------------#
-  #  Listener
-  # ------------------------------------------------------------#
-  CfnCIALBListener:
-    Type: "AWS::ElasticLoadBalancingV2::Listener"
-    Properties:
-      DefaultActions:
-        - Type: forward
-          TargetGroupArn: !Ref CfnCITargetGroup
-      LoadBalancerArn: !Ref CfnCIALB
-      Port: 80
-      Protocol: HTTP
-
-  # ------------------------------------------------------------#
-  #  S3 Bucket
-  # ------------------------------------------------------------#
-  CfnCIS3Bucket:
-    Type: AWS::S3::Bucket
-    DeletionPolicy: Delete
-    Properties:
-      BucketName: !Sub "${PJName}-bucket"
-      PublicAccessBlockConfiguration:
-        BlockPublicAcls: true
-        BlockPublicPolicy: true
-        IgnorePublicAcls: true
-        RestrictPublicBuckets: true
-      Tags:
-        - Key: !Ref TagKey
-          Value: !Ref PJName
+#  CfnCIALBSecGrp:
+#    Type: "AWS::EC2::SecurityGroup"
+#    Properties:
+#      GroupName: !Sub "${PJName}-alb-sg"
+#      GroupDescription: SecurityGroup for ALB
+#      VpcId: !ImportValue CfnCIVPC-ID
+#      SecurityGroupIngress:
+#        - IpProtocol: tcp
+#          FromPort: 80
+#          ToPort: 80
+#          CidrIp: "0.0.0.0/0"
+#      Tags:
+#        - Key: !Ref TagKey
+#          Value: !Ref PJName
+#
+#  # ------------------------------------------------------------#
+#  #  TargetGroup
+#  # ------------------------------------------------------------#
+#  CfnCITargetGroup:
+#    Type: "AWS::ElasticLoadBalancingV2::TargetGroup"
+#    Properties:
+#      Name: !Sub "${PJName}-tg"
+#      VpcId: !ImportValue CfnCIVPC-ID
+#      Protocol: HTTP
+#      Port: 80
+#      TargetType: instance
+#      HealthCheckPath: "/"
+#      HealthyThresholdCount: 5
+#      UnhealthyThresholdCount: 2
+#      HealthCheckTimeoutSeconds: 5
+#      HealthCheckIntervalSeconds: 30
+#      Matcher:
+#        HttpCode: 200
+#      Targets:
+#        - Id: !Ref CfnCIEC2
+#          Port: 80
+#      Tags:
+#        - Key: !Ref TagKey
+#          Value: !Ref PJName
+#
+#  # ------------------------------------------------------------#
+#  #  LoadBalancer
+#  # ------------------------------------------------------------#
+#  CfnCIALB:
+#    Type: "AWS::ElasticLoadBalancingV2::LoadBalancer"
+#    Properties:
+#      Name: !Sub "${PJName}-alb"
+#      Type: "application"
+#      IpAddressType: ipv4
+#      Scheme: "internet-facing"
+#      SecurityGroups:
+#        - !Ref CfnCIALBSecGrp
+#      Subnets:
+#        - !ImportValue CfnCIPublicSubnet1A-ID
+#        - !ImportValue CfnCIPublicSubnet1C-ID
+#      Tags:
+#        - Key: !Ref TagKey
+#          Value: !Ref PJName
+#
+#  # ------------------------------------------------------------#
+#  #  Listener
+#  # ------------------------------------------------------------#
+#  CfnCIALBListener:
+#    Type: "AWS::ElasticLoadBalancingV2::Listener"
+#    Properties:
+#      DefaultActions:
+#        - Type: forward
+#          TargetGroupArn: !Ref CfnCITargetGroup
+#      LoadBalancerArn: !Ref CfnCIALB
+#      Port: 80
+#      Protocol: HTTP
+#
+#  # ------------------------------------------------------------#
+#  #  S3 Bucket
+#  # ------------------------------------------------------------#
+#  CfnCIS3Bucket:
+#    Type: AWS::S3::Bucket
+#    DeletionPolicy: Delete
+#    Properties:
+#      BucketName: !Sub "${PJName}-bucket"
+#      PublicAccessBlockConfiguration:
+#        BlockPublicAcls: true
+#        BlockPublicPolicy: true
+#        IgnorePublicAcls: true
+#        RestrictPublicBuckets: true
+#      Tags:
+#        - Key: !Ref TagKey
+#          Value: !Ref PJName
