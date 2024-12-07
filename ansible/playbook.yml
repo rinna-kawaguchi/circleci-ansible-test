@@ -2,6 +2,7 @@
   become: yes
   vars:
     ruby_version: "3.2.3"
+    node_version: "v17.9.1"
   tasks:
     # Update yum
     - name: Update yum
@@ -58,3 +59,12 @@
         source ~/.bash_profile
       args:
         executable: /bin/bash
+    # Install nvm and Node.js
+    - name: Install nvm
+      shell: |
+        curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+        source ~/.bashrc
+        nvm install {{ node_version }}
+      args:
+        executable: /bin/bash
+
