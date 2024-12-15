@@ -1,70 +1,15 @@
 - hosts: all
+  become_user: ec2-user
   become: yes
-  vars:
-    ruby_version: "3.2.3"
-    node_version: "v17.9.1"
-  tasks:
-    # Update yum
-    - name: Update yum
-      yum:
-        name: "*"
-        state: latest
-    # Install git
-    - name: Install git
-      yum:
-        name: git
-        state: present
-        lock_timeout: 180
 
-    # Install rbenv and ruby-build
-    - name: Clone rbenv repository
-      git:
-        repo: https://github.com/rbenv/rbenv.git
-        dest: ~/.rbenv
-        version: HEAD
+    #    - name: directory created
+    #      file:
+    #        path: "/home/ec2-user/raisetech-live8-sample-app"
+    #        state: directory
+    #        owner: "ec2-user"
+    #        group: "ec2-user"
+  #        mode: "755"
 
-    - name: Initialize rbenv
-      shell: |
-        ~/.rbenv/bin/rbenv init
-        echo 'export PATH="$HOME/.rbenv/bin:$PATH"' >> ~/.bash_profile
-        echo 'eval "$(rbenv init -)"' >> ~/.bash_profile
-        source ~/.bash_profile
-      args:
-        executable: /bin/bash
-
-    - name: Clone ruby-build repository
-      git:
-        repo: https://github.com/rbenv/ruby-build.git
-        dest: ~/.rbenv/plugins/ruby-build
-        version: HEAD
-
-    # Install Ruby dependencies
-    - name: Install Ruby dependencies
-      yum:
-        name:
-          - gcc-c++
-          - glibc-headers
-          - openssl-devel
-          - libyaml-devel
-          - readline-devel
-          - zlib-devel
-          - libffi-devel
-        state: present
-
-    # Install Ruby
-    - name: Install Ruby
-      shell: |
-        ~/.rbenv/bin/rbenv install {{ ruby_version }}
-        ~/.rbenv/bin/rbenv global {{ ruby_version }}
-        source ~/.bash_profile
-      args:
-        executable: /bin/bash
-    # Install nvm and Node.js
-    - name: Install nvm
-      shell: |
-        curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
-        source ~/.bashrc
-        nvm install {{ node_version }}
-      args:
-        executable: /bin/bash
-
+  roles:
+    - yum
+    - ruby

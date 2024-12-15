@@ -1,0 +1,27 @@
+---
+- name: Update yum
+  become_user: root
+  yum:
+    name: "*"
+    state: latest
+
+- name: Install Git
+  become_user: root
+  yum:
+    name: git
+    state: present
+    lock_timeout: 180
+
+# Install Ruby dependencies
+- name: Install Ruby dependencies
+  become_user: root
+  yum:
+    name:
+      - gcc-c++
+      - glibc-headers
+      - openssl-devel
+      - libyaml-devel
+      - readline-devel
+      - zlib-devel
+      - libffi-devel
+    state: present
