@@ -1,6 +1,6 @@
 ---
-- name: Check rbenv
-  shell: bash -lc "rbenv --version"
+- name: Check rbenv installed
+  shell: bash -lc "rbenv -v"
   register: rbenv_exists
   changed_when: false
   ignore_errors: true
@@ -46,5 +46,12 @@
   shell: bash -lc "rbenv install {{ ruby_version }}"
   when: ruby_installed is failed
 
+- name: ruby version check
+  shell: bash -lc "ruby -v | grep {{ ruby_version }}"
+  register: ruby_version
+  changed_when: false
+  ignore_errors: true
+
 - name: changed ruby {{ ruby_version }}
   shell: bash -lc "rbenv global {{ ruby_version }}"
+  when: ruby_version is failed

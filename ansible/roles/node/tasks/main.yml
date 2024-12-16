@@ -1,0 +1,34 @@
+---
+- name: Check nvm installed
+  shell: bash -lc "nvm -v"
+  register: nvm_exists
+  changed_when: false
+  ignore_errors: true
+
+- name: Install nvm
+  become: no
+  ansible.builtin.shell: >
+    curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.40.1/install.sh | bash
+  args:
+    executable: /bin/bash
+    chdir: /home/ec2-user
+    creates: /home/ec2-user/.nvm/nvm.sh
+  when: nvm_exists is failed
+#
+#- name: Check node installed
+#  shell: bash -lc "node -v | grep v17.9.1"
+#  register: node_version
+#  changed_when: false
+#  ignore_errors: true
+#
+#- name: Install node
+#  become: no
+#  shell: >
+#    . /home/ec2-user/.nvm/nvm.sh && nvm install {{ item }}
+#  args:
+#    executable: /bin/bash
+#    chdir: /home/ec2-user
+#    creates: /home/ec2-user/.nvm/versions/{{ item }}"
+#  loop:
+#    - v17.9.1
+#  when: node_version is failed
