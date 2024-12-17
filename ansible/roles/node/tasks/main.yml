@@ -16,7 +16,7 @@
   when: nvm_exists is failed
 
 - name: Check node installed
-  shell: bash -lc "node -v | grep v17.9.1"
+  shell: bash -lc "node -v | grep {{ node_version }}"
   register: node_version
   changed_when: false
   ignore_errors: true
@@ -28,7 +28,21 @@
   args:
     executable: /bin/bash
     chdir: /home/ec2-user
-    creates: /home/ec2-user/.nvm/versions/{{ item }}"
+    creates: /home/ec2-user/.nvm/versions/{{ item }}
   loop:
-    - v17.9.1
+    - "{{ node_version }}"
   when: node_version is failed
+
+- name: Check yarn installed
+  shell: bash -lc "yarn -v | grep {{ yarn_version }}"
+  register: yarn_version
+  changed_when: false
+  ignore_errors: true
+
+- name: Install yarn
+  shell: bash -lc "npm install -g yarn"
+  when: yarn_version is failed
+
+- name: Set yarn version
+  shell: bash -lc "yarn set version {{ yarn_version }}"
+  when: yarn_version is failed
