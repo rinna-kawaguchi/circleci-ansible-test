@@ -16,8 +16,8 @@
   when: nvm_exists is failed
 
 - name: Check node installed
-  shell: bash -lc "node -v | grep {{ node_version }}"
-  register: node_version
+  shell: bash -lc "node -v | grep "{{ node_version }}""
+  register: node_version_check
   changed_when: false
   ignore_errors: true
 
@@ -31,18 +31,14 @@
     creates: /home/ec2-user/.nvm/versions/{{ item }}
   loop:
     - "{{ node_version }}"
-  when: node_version is failed
+  when: node_version_check is failed
 
 - name: Check yarn installed
-  shell: bash -lc "yarn -v | grep {{ yarn_version }}"
-  register: yarn_version
+  shell: bash -lc "yarn -v | grep "{{ yarn_version }}""
+  register: yarn_version_check
   changed_when: false
   ignore_errors: true
 
 - name: Install yarn
-  shell: bash -lc "npm install -g yarn"
-  when: yarn_version is failed
-
-- name: Set yarn version
-  shell: bash -lc "yarn set version {{ yarn_version }}"
-  when: yarn_version is failed
+  shell: bash -lc "npm install -g yarn@{{ yarn_version }}"
+  when: yarn_version_check is failed

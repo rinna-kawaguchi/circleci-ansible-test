@@ -1,11 +1,10 @@
 ---
-- name: Check rbenv installed
+- name: Check rbenv
   shell: bash -lc "rbenv -v"
   register: rbenv_exists
   changed_when: false
   ignore_errors: true
 
-# Install rbenv and ruby-build
 - name: Clone rbenv repository
   git:
     repo: https://github.com/rbenv/rbenv.git
@@ -46,12 +45,12 @@
   shell: bash -lc "rbenv install {{ ruby_version }}"
   when: ruby_installed is failed
 
-- name: ruby version check
+- name: ruby_version check
   shell: bash -lc "ruby -v | grep {{ ruby_version }}"
-  register: ruby_version
+  register: ruby_version_check
   changed_when: false
   ignore_errors: true
 
 - name: changed ruby {{ ruby_version }}
   shell: bash -lc "rbenv global {{ ruby_version }}"
-  when: ruby_version is failed
+  when: ruby_version_check is failed
