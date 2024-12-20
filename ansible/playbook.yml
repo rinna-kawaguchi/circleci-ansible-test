@@ -1,16 +1,18 @@
 - hosts: all
   become_user: ec2-user
   become: yes
-
-    #    - name: directory created
-    #      file:
-    #        path: "/home/ec2-user/raisetech-live8-sample-app"
-    #        state: directory
-    #        owner: "ec2-user"
-    #        group: "ec2-user"
-  #        mode: "755"
+  vars:
+    app_dir: /home/ec2-user/raisetech-live8-sample-app
+#        - name: directory created
+#          file:
+#            path: "/home/ec2-user/raisetech-live8-sample-app"
+#            state: directory
+#            owner: "ec2-user"
+#            group: "ec2-user"
+#          mode: "755"
 
   roles:
     - yum
     - ruby
     - node
+    # - nginx
