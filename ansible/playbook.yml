@@ -15,4 +15,5 @@
     - yum
     - ruby
     - node
+    - mysql
     # - nginx
