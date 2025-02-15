@@ -55,16 +55,6 @@
   shell: bash -lc "rbenv global {{ ruby_version }}"
   when: ruby_version_check is failed
 
-- name: ruby_version check
-  shell: bash -lc "ruby -v | grep {{ ruby_version }}"
-  register: ruby_version_check
-  changed_when: false
-  ignore_errors: true
-
-- name: changed ruby {{ ruby_version }}
-  shell: bash -lc "rbenv global {{ ruby_version }}"
-  when: ruby_version_check is failed
-
 - name: Clone the repository
   git:
     repo: 'https://github.com/yuta-ushijima/raisetech-live8-sample-app.git'
