@@ -21,3 +21,15 @@
     name:
       - mysql-community-server
     state: present
+
+- name: Set database.yml from template
+  template:
+    src: database.yml.j2
+    dest: "{{ app_dir }}/config/database.yml"
+  become_user: root
+
+- name: Start MySQL service
+  become_user: root
+  service:
+    name: mysqld
+    state: started
