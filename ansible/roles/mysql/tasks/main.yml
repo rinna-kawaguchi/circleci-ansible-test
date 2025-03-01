@@ -15,11 +15,12 @@
   become_user: root
   shell: rpm --import "https://repo.mysql.com/RPM-GPG-KEY-mysql-2023"
 
-- name: install mysql-community-server
+- name: install mysql packages
   become_user: root
   yum:
     name:
       - mysql-community-server
+      - mysql-community-devel
     state: present
 
 - name: Set database.yml from template
