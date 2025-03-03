@@ -57,7 +57,7 @@ jobs:
             DB_PASSWORD=$(aws secretsmanager get-secret-value \
               --secret-id aws-lecture13-ci-rds-secret \
               --query 'SecretString' \
-              --output text | jq -r '.password')
+              --output text | jq '.password')
             echo "export DB_PASSWORD=${DB_PASSWORD}" >> $BASH_ENV
       - ansible-playbook/playbook:
           playbook: ansible/playbook.yml
