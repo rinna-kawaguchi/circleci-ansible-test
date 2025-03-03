@@ -43,6 +43,15 @@ jobs:
           aws_secret_access_key: AWS_SECRET_ACCESS_KEY
           region: AWS_DEFAULT_REGION
       - run:
+          name: Get public IP of target node
+          command: |
+            EIP=$(aws cloudformation describe-stacks \
+              --stack-name circleci-application \
+              --query "Stacks[0].Outputs[?OutputKey=='EC2PublicIP'].OutputValue" \
+              --output text)
+            echo "[target_node]" > ansible/inventory
+            echo "${EIP} ansible_user=ec2-user ansible_ssh_private_key_file=~/.ssh/circleci-key-pair.pem" >> ansible/inventory
+      - run:
           name: Get RDS password from AWS Secrets Manager
           command: |
             DB_PASSWORD=$(aws secretsmanager get-secret-value \
