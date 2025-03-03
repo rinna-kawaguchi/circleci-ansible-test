@@ -287,4 +287,4 @@ Resources:
 # ------------------------------------------------------------#
 Outputs:
   EC2PublicIP:
-    Value: !GetAtt PublicIp
+    Value: !GetAtt CfnCIEC2.PublicIp
