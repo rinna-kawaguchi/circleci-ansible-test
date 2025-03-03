@@ -42,3 +42,8 @@
 - name: Install yarn
   shell: bash -lc "npm install -g yarn@{{ yarn_version }}"
   when: yarn_version_check is failed
+
+- name: Package install
+  shell: bash -lc "yarn install"
+  args:
+    chdir: "{{ app_dir }}"
