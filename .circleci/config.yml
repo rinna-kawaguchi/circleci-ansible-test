@@ -49,9 +49,8 @@ jobs:
               --stack-name circleci-application \
               --query "Stacks[0].Outputs[?OutputKey=='EC2PublicIP'].OutputValue" \
               --output text)
-            echo -e "[target_node]\n" > ansible/inventory
-            echo -e "${EIP} ansible_user=ec2-user ansible_ssh_private_key_file=~/.ssh/circleci-key-pair.pem\n" >> 
-            ansible/inventory
+            echo -e "[target_node]\n${EIP} ansible_user=ec2-user \
+              ansible_ssh_private_key_file=~/.ssh/circleci-key-pair.pem" > ansible/inventory
       - run:
           name: Get RDS password from AWS Secrets Manager
           command: |
