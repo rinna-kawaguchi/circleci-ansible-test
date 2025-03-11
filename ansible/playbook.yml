@@ -16,4 +16,5 @@
     - ruby
     - node
     - mysql
+    - setup_app
     # - nginx

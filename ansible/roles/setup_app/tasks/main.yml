@@ -1,0 +1,21 @@
+---
+- name: Execute bundle install
+  shell: bash -lc "bundle install"
+  args:
+    chdir: "{{ app_dir }}"
+
+- name: Start MySQL service
+  become_user: root
+  service:
+    name: mysqld
+    state: started
+
+- name: Execute bin/setup
+  shell: bash -lc "bin/setup"
+  args:
+    chdir: "{{ app_dir }}"
+
+- name: Execute bin/dev
+  shell: bash -lc "bin/dev"
+  args:
+    chdir: "{{ app_dir }}"
