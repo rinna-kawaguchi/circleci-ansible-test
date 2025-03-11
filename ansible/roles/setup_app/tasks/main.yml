@@ -14,8 +14,3 @@
   shell: bash -lc "bin/setup"
   args:
     chdir: "{{ app_dir }}"
-
-- name: Execute bin/dev
-  shell: bash -lc "bin/dev"
-  args:
-    chdir: "{{ app_dir }}"

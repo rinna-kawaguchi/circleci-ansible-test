@@ -17,4 +17,4 @@
     - node
     - mysql
     - setup_app
-    # - nginx
+    - nginx
