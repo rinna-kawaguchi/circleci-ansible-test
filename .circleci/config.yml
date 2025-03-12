@@ -44,13 +44,18 @@ jobs:
           region: AWS_DEFAULT_REGION
       - run:
           name: Get public IP of target node
+#          一時的にIPアドレスを手動で指定
           command: |
-            EIP=$(aws cloudformation describe-stacks \
-              --stack-name circleci-application \
-              --query "Stacks[0].Outputs[?OutputKey=='EC2PublicIP'].OutputValue" \
-              --output text)
+            EIP=13.113.198.105
             echo -e "[target_node]\n${EIP} ansible_user=ec2-user \
               ansible_ssh_private_key_file=~/.ssh/circleci-key-pair.pem" > ansible/inventory
+#          command: |
+#            EIP=$(aws cloudformation describe-stacks \
+#              --stack-name circleci-application \
+#              --query "Stacks[0].Outputs[?OutputKey=='EC2PublicIP'].OutputValue" \
+#              --output text)
+#            echo -e "[target_node]\n${EIP} ansible_user=ec2-user \
+#              ansible_ssh_private_key_file=~/.ssh/circleci-key-pair.pem" > ansible/inventory
       - run:
           name: Get RDS password from AWS Secrets Manager
           command: |
