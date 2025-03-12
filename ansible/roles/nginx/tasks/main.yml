@@ -23,13 +23,13 @@
 
 - name: Reload nginx
   become_user: root
-  service:
+  systemd:
     name: nginx
     state: reloaded
 
 - name: Start nginx
   become_user: root
-  service:
+  systemd:
     name: nginx
     state: started
 
