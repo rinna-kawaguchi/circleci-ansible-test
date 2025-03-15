@@ -65,6 +65,9 @@ jobs:
               --query 'SecretString' \
               --output text | jq '.password')
             echo "export DB_PASSWORD=${DB_PASSWORD}" >> $BASH_ENV
+      - run:
+          name: Print environment variable DB_PASSWORD
+          command: echo $DB_PASSWORD
       - ansible-playbook/playbook:
           playbook: ansible/playbook.yml
           playbook-options: -i ansible/inventory
