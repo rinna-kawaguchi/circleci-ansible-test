@@ -4,16 +4,10 @@
   args:
     chdir: "{{ app_dir }}"
 
-- name: Start MySQL service
-  become_user: root
-  service:
-    name: mysqld
-    state: started
-
-- name: Execute bin/setup
-  shell: bash -lc "bin/setup"
-  args:
-    chdir: "{{ app_dir }}"
+- name: Set application.rb from template
+  template:
+    src: application.rb.j2
+    dest: "{{ app_dir }}/config/application.rb"
 
 - name: Set puma.rb from template
   template:
@@ -30,3 +24,14 @@
   become_user: root
   systemd:
     daemon_reload: yes
+
+- name: Start MySQL service
+  become_user: root
+  service:
+    name: mysqld
+    state: started
+
+- name: Execute bin/setup
+  shell: bash -lc "bin/setup"
+  args:
+    chdir: "{{ app_dir }}"

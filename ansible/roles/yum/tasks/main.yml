@@ -24,4 +24,5 @@
       - readline-devel
       - zlib-devel
       - libffi-devel
+      - ImageMagick
     state: present
