@@ -59,9 +59,6 @@ jobs:
             echo "export TARGET_IP=${TARGET_IP}" >> $BASH_ENV
       - run:
           name: Get RDS password from AWS Secrets Manager
-#          command: |
-#            DB_PASSWORD=password
-#            echo "export DB_PASSWORD=${DB_PASSWORD}" >> $BASH_ENV
           command: |
             DB_PASSWORD=$(aws secretsmanager get-secret-value \
               --secret-id aws-lecture13-ci-rds-secret \
