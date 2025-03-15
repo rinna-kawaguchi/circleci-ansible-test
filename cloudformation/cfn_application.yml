@@ -156,7 +156,7 @@ Resources:
         SecretStringTemplate: '{"username": "root"}'
         GenerateStringKey: "password"
         PasswordLength: 32
-        ExcludeCharacters: '"@/\'
+        ExcludeCharacters: '"@/\[]&#:~`%,'
       Tags:
         - Key: !Ref TagKey
           Value: !Ref PJName
