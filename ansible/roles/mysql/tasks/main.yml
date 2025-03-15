@@ -23,6 +23,10 @@
       - mysql-community-devel
     state: present
 
+- name: Debug referencing the environment variable "DB_PASSWORD"
+  debug:
+    msg: "{{ lookup('env', 'DB_PASSWORD') }}"
+
 - name: Set database.yml from template
   template:
     src: database.yml.j2
