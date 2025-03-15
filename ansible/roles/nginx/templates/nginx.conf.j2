@@ -42,7 +42,7 @@ http {
 
     server {
         listen       80;
-        server_name  54.250.28.186;
+        server_name  {{ lookup('env', 'TARGET_IP') }};
         root         {{ app_dir }}/public;
 
         # Load configuration files for the default server block.
