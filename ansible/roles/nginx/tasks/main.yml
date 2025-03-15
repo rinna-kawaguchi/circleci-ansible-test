@@ -40,4 +40,4 @@
   become_user: root
   systemd:
     name: puma
-    state: started
+    state: restarted
