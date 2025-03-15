@@ -25,13 +25,7 @@
   become_user: root
   systemd:
     name: nginx
-    state: reloaded
-
-- name: Start nginx
-  become_user: root
-  systemd:
-    name: nginx
-    state: started
+    state: restarted
 
 - name: Start puma
   become_user: root
