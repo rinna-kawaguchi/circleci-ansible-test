@@ -30,13 +30,13 @@
     group: ec2-user
     recurse: true
 
-- name: Reload nginx
+- name: Restart nginx
   become_user: root
   systemd:
     name: nginx
     state: restarted
 
-- name: Start puma
+- name: Restart puma
   become_user: root
   systemd:
     name: puma
