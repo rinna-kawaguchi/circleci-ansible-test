@@ -265,22 +265,22 @@ Resources:
 #      Port: 80
 #      Protocol: HTTP
 #
-#  # ------------------------------------------------------------#
-#  #  S3 Bucket
-#  # ------------------------------------------------------------#
-#  CfnCIS3Bucket:
-#    Type: AWS::S3::Bucket
-#    DeletionPolicy: Delete
-#    Properties:
-#      BucketName: !Sub "${PJName}-bucket"
-#      PublicAccessBlockConfiguration:
-#        BlockPublicAcls: true
-#        BlockPublicPolicy: true
-#        IgnorePublicAcls: true
-#        RestrictPublicBuckets: true
-#      Tags:
-#        - Key: !Ref TagKey
-#          Value: !Ref PJName
+  # ------------------------------------------------------------#
+  #  S3 Bucket
+  # ------------------------------------------------------------#
+  CfnCIS3Bucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Delete
+    Properties:
+      BucketName: !Sub "${PJName}-bucket"
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      Tags:
+        - Key: !Ref TagKey
+          Value: !Ref PJName
 
 # ------------------------------------------------------------#
 #  Outputs
