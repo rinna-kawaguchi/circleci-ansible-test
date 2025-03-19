@@ -80,10 +80,6 @@ Resources:
             VolumeType: gp2
             DeleteOnTermination: true
             VolumeSize: 8
-      UserData:
-        Fn::Base64: |
-          #!/bin/bash
-          sudo yum update -y
       Tags:
         - Key: Name
           Value: !Sub "${PJName}-ec2"
