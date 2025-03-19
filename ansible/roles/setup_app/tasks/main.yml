@@ -35,3 +35,8 @@
   shell: bash -lc "bin/setup"
   args:
     chdir: "{{ app_dir }}"
+
+- name: Precompile assets
+  shell: bash -lc "RAILS_ENV=development bundle exec rails assets:precompile"
+  args:
+    chdir: "{{ app_dir }}"
