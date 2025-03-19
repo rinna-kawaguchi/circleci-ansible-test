@@ -26,9 +26,12 @@ jobs:
           name: Deploy to aws from template
           command:  |
             set -x
-            aws cloudformation deploy --template-file cloudformation/cfn_network.yml --stack-name circleci-network
-            aws cloudformation deploy --template-file cloudformation/cfn_iam_role.yml --stack-name circleci-iam-role --capabilities CAPABILITY_NAMED_IAM
-            aws cloudformation deploy --template-file cloudformation/cfn_application.yml --stack-name circleci-application --capabilities CAPABILITY_NAMED_IAM
+            aws cloudformation deploy --template-file cloudformation/cfn_network.yml \
+              --stack-name raisetech-aws-lecture13-ci-network
+            aws cloudformation deploy --template-file cloudformation/cfn_iam_role.yml \
+              --stack-name raisetech-aws-lecture13-ci-iam-role --capabilities CAPABILITY_NAMED_IAM
+            aws cloudformation deploy --template-file cloudformation/cfn_application.yml 
+              --stack-name raisetech-aws-lecture13-ci-application --capabilities CAPABILITY_NAMED_IAM
   execute-ansible:
     executor: ansible-playbook/default
     steps:
@@ -46,7 +49,7 @@ jobs:
           name: Get public IP of target node
           command: |
             TARGET_IP=$(aws cloudformation describe-stacks \
-              --stack-name circleci-application \
+              --stack-name raisetech-aws-lecture13-ci-application \
               --query "Stacks[0].Outputs[?OutputKey=='EC2PublicIP'].OutputValue" \
               --output text)
             echo -e "[target_node]\n${TARGET_IP} ansible_user=ec2-user \
@@ -64,7 +67,7 @@ jobs:
           name: Get ALB DNS
           command: |
             ALB_DNS=$(aws cloudformation describe-stacks \
-              --stack-name circleci-application \
+              --stack-name raisetech-aws-lecture13-ci-application \
               --query "Stacks[0].Outputs[?OutputKey=='ALBDNS'].OutputValue" \
               --output text)
             echo "export ALB_DNS=${ALB_DNS}" >> $BASH_ENV
