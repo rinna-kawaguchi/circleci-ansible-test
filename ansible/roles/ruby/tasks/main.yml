@@ -35,7 +35,7 @@
     dest: /home/ec2-user/.rbenv/plugins/ruby-build
   when: rbenv_exists is failed
 
-- name: ruby {{ ruby_version }} installed check
+- name: Check Ruby {{ ruby_version }} installed
   shell: bash -lc "rbenv versions | grep {{ ruby_version }}"
   register: ruby_installed
   changed_when: false
@@ -45,13 +45,13 @@
   shell: bash -lc "rbenv install {{ ruby_version }}"
   when: ruby_installed is failed
 
-- name: ruby_version check
+- name: Check Ruby version
   shell: bash -lc "ruby -v | grep {{ ruby_version }}"
   register: ruby_version_check
   changed_when: false
   ignore_errors: true
 
-- name: changed ruby {{ ruby_version }}
+- name: Apply Ruby {{ ruby_version }}
   shell: bash -lc "rbenv global {{ ruby_version }}"
   when: ruby_version_check is failed
 
@@ -61,7 +61,7 @@
     dest: "{{ app_dir }}"
     force: yes
 
-- name: Check bundler install
+- name: Check bundler installed
   shell: bash -lc "bundler -v | grep {{ bundler_version }}"
   args:
     chdir: "{{ app_dir }}"

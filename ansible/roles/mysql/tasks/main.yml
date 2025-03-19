@@ -1,11 +1,11 @@
 ---
-- name: remove the MariaDB
+- name: Remove MariaDB
   become_user: root
   yum:
     name: mariadb-*
     state: absent
 
-- name: install the mysql rpm from a remote repo
+- name: Install MySQL rpm from remote repo
   become_user: root
   yum:
     name: 'https://repo.mysql.com//mysql80-community-release-el7-7.noarch.rpm'
@@ -15,17 +15,13 @@
   become_user: root
   shell: rpm --import "https://repo.mysql.com/RPM-GPG-KEY-mysql-2023"
 
-- name: install mysql packages
+- name: Install MySQL packages
   become_user: root
   yum:
     name:
       - mysql-community-server
       - mysql-community-devel
     state: present
-
-- name: Debug referencing the environment variable "DB_PASSWORD"
-  debug:
-    msg: "{{ lookup('env', 'DB_PASSWORD') }}"
 
 - name: Set database.yml from template
   template:

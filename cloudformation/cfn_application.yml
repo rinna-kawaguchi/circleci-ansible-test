@@ -54,10 +54,6 @@ Resources:
           FromPort: 80
           ToPort: 80
           CidrIp: !Ref MyIP
-#        - IpProtocol: tcp
-#          FromPort: 3000
-#          ToPort: 3000
-#          CidrIp: !Ref MyIP
       Tags:
         - Key: !Ref TagKey
           Value: !Ref PJName
@@ -93,23 +89,6 @@ Resources:
           Value: !Sub "${PJName}-ec2"
         - Key: !Ref TagKey
           Value: !Ref PJName
-
-  # ------------------------------------------------------------#
-  #  ElasticIP
-  # ------------------------------------------------------------#
-#  CfnCIElasticIP:
-#    Type: "AWS::EC2::EIP"
-#    Properties:
-#      Domain: vpc
-#      Tags:
-#        - Key: !Ref TagKey
-#          Value: !Ref PJName
-#
-#  CfnCIEIPAssociation:
-#    Type: AWS::EC2::EIPAssociation
-#    Properties:
-#      InstanceId: !Ref CfnCIEC2
-#      EIP: !Ref CfnCIElasticIP
 
   # ------------------------------------------------------------#
   #  SecurityGroup(for RDS)

@@ -12,7 +12,6 @@
     state: present
     lock_timeout: 180
 
-# Install Ruby dependencies
 - name: Install Ruby dependencies
   become_user: root
   yum:

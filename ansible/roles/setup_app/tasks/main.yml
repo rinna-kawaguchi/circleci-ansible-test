@@ -51,7 +51,7 @@
   args:
     chdir: "{{ app_dir }}"
 
-- name: Create sockets directory
+- name: Create sockets and pids directory
   file:
     path: "{{ item }}"
     state: directory

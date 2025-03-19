@@ -1,15 +1,15 @@
 ---
-- name: nginx1 installed check
+- name: Check nginx1 installed
   shell: bash -lc "amazon-linux-extras list"
   register: amazon_linux_extras_list
   changed_when: false
 
-- name: Enable to install NGINX
+- name: Enable to install nginx1
   become_user: root
   shell: bash -lc "amazon-linux-extras enable nginx1"
   when: "'nginx1=latest' not in amazon_linux_extras_list.stdout"
 
-- name: install nginx
+- name: Install Nginx
   become_user: root
   yum:
     name: nginx
