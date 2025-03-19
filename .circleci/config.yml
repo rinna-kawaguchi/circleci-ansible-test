@@ -68,9 +68,10 @@ jobs:
       - run:
           name: Get ALB DNS
           command: |
-            ALB_DNS=$(aws elbv2 describe-load-balancers \
-            --query "LoadBalancers[?LoadBalancerName=='aws-lecture13-ci-alb'].DNSName" \
-            --output text)
+            ALB_DNS=$(aws cloudformation describe-stacks \
+              --stack-name circleci-application \
+              --query "Stacks[0].Outputs[?OutputKey=='ALBDNS'].OutputValue" \
+              --output text)
             echo "export ALB_DNS=${ALB_DNS}" >> $BASH_ENV
       - ansible-playbook/playbook:
           playbook: ansible/playbook.yml

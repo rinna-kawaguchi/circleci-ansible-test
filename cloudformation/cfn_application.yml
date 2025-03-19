@@ -288,3 +288,5 @@ Resources:
 Outputs:
   EC2PublicIP:
     Value: !GetAtt CfnCIEC2.PublicIp
+  ALBDNS:
+    Value: !GetAtt CfnCIALB.DNSName
