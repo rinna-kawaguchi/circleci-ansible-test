@@ -65,6 +65,13 @@ jobs:
               --query 'SecretString' \
               --output text | jq '.password')
             echo "export DB_PASSWORD=${DB_PASSWORD}" >> $BASH_ENV
+      - run:
+          name: Get ALB DNS
+          command: |
+            ALB_DNS=$(aws elbv2 describe-load-balancers \
+            --query "LoadBalancers[?LoadBalancerName=='aws-lecture13-ci-alb'].DNSName" \
+            --output text)
+            echo "export ALB_DNS=${ALB_DNS}" >> $BASH_ENV
       - ansible-playbook/playbook:
           playbook: ansible/playbook.yml
           playbook-options: -i ansible/inventory
