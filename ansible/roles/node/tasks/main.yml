@@ -1,0 +1,49 @@
+---
+- name: Check nvm installed
+  shell: bash -lc "nvm -v"
+  register: nvm_exists
+  changed_when: false
+  ignore_errors: true
+
+- name: Install nvm
+  become: no
+  ansible.builtin.shell: >
+    curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.40.1/install.sh | bash
+  args:
+    executable: /bin/bash
+    chdir: /home/ec2-user
+    creates: /home/ec2-user/.nvm/nvm.sh
+  when: nvm_exists is failed
+
+- name: Check node installed
+  shell: bash -lc "node -v | grep "{{ node_version }}""
+  register: node_version_check
+  changed_when: false
+  ignore_errors: true
+
+- name: Install node
+  become: no
+  shell: >
+    . /home/ec2-user/.nvm/nvm.sh && nvm install {{ item }}
+  args:
+    executable: /bin/bash
+    chdir: /home/ec2-user
+    creates: /home/ec2-user/.nvm/versions/{{ item }}
+  loop:
+    - "{{ node_version }}"
+  when: node_version_check is failed
+
+- name: Check yarn installed
+  shell: bash -lc "yarn -v | grep "{{ yarn_version }}""
+  register: yarn_version_check
+  changed_when: false
+  ignore_errors: true
+
+- name: Install yarn
+  shell: bash -lc "npm install -g yarn@{{ yarn_version }}"
+  when: yarn_version_check is failed
+
+- name: Package install
+  shell: bash -lc "yarn install"
+  args:
+    chdir: "{{ app_dir }}"

@@ -1,8 +1,13 @@
 - hosts: all
+  become_user: ec2-user
   become: yes
-  tasks:
-    - name: Install git
-      yum:
-        name: git
-        state: present
-        lock_timeout: 180
+  vars:
+    app_dir: /home/ec2-user/raisetech-live8-sample-app
+
+  roles:
+    - yum
+    - ruby
+    - node
+    - mysql
+    - setup_app
+    - nginx
