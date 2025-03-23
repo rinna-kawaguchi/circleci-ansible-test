@@ -2,7 +2,7 @@ require 'spec_helper'
 
 # Rubyの指定バージョンがインストールされていること
 describe command('ruby -v') do
-  its(:stdout) { should match 3\.2\.3/ }
+  its(:stdout) { should match /3\.2\.3/ }
 end
 
 # Nginxがインストールされていること
@@ -26,7 +26,7 @@ describe port(80) do
   it { should be_listening }
 end
 
-# curlでd接続してステータスコード200が返ること
-# describe command('curl http://.0.0.9 -o /dev/null -w "%{http_code}" -s') do
-#   its(:stdout) { should match /^200$/ }
-# end
+curlでd接続してステータスコード200が返ること
+describe command('curl http://127.0.0.1 -o /dev/null -w "%{http_code}" -s') do
+  its(:stdout) { should match /^200$/ }
+end
