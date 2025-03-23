@@ -102,9 +102,9 @@ jobs:
           name: Setup SSH config
           command: |
             echo -e "Host target\n    \
-              HostName ${TARGET_IP}\n    \
-              IdentityFile ~/.ssh/circleci-key-pair\n    \
-              User ec2-user" >> ~/.ssh/config
+            HostName ${TARGET_IP}\n    \
+            IdentityFile ~/.ssh/circleci-key-pair\n    \
+            User ec2-user" >> ~/.ssh/config
             cat ~/.ssh/config
       - run:
           name: Install dependencies
