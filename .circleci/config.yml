@@ -20,6 +20,7 @@ jobs:
           name: run cfn-lint
           command: |
             cfn-lint -i W3002 -t cloudformation/*.yml
+
   execute-cloudformation:
     # orbs使う時はexecutorとする
     executor: aws-cli/default
@@ -42,6 +43,7 @@ jobs:
               --stack-name raisetech-aws-lecture13-ci-iam-role --capabilities CAPABILITY_NAMED_IAM
             aws cloudformation deploy --template-file cloudformation/cfn_application.yml \
               --stack-name raisetech-aws-lecture13-ci-application --capabilities CAPABILITY_NAMED_IAM
+
   execute-ansible:
     executor: ansible-playbook/default
     steps:
@@ -84,6 +86,36 @@ jobs:
       - ansible-playbook/playbook:
           playbook: ansible/playbook.yml
           playbook-options: -i ansible/inventory
+  execute_serverspec:
+    executor: ruby/default
+    steps:
+      - checkout
+      - ruby/install:
+          version: 3.2.3
+      - add_ssh_keys:
+          fingerprints:
+            - "SHA256:5xYMYiXExMetTl9FUX/tiLxVy0QjrR0oqb50dx/MA7U"
+      - attach_workspace:
+          at: .
+      - run:
+          name: Setup SSH config
+          command: |
+            echo -e "Host target\n    \
+              HostName ${TARGET_IP}\n    \
+              IdentityFile ~/.ssh/circleci-key-pair\n    \
+              User ec2-user" >> ~/.ssh/config
+            cat ~/.ssh/config
+      - run:
+          name: Install dependencies
+          command: |
+            cd serverspec
+            bundle install
+      - run:
+          name: Execute Serverspec test
+          command: |
+            cd serverspec
+            bundle exec rake spec
+
 # Orchestrate jobs using workflows
 # See: https://circleci.com/docs/workflows/ & https://circleci.com/docs/configuration-reference/#workflows
 workflows:
@@ -95,3 +127,6 @@ workflows:
       - execute-ansible:
           requires:
             - execute-cloudformation
+      - execute_serverspec:
+          requires:
+            - execute-ansible
