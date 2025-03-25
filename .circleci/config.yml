@@ -85,7 +85,6 @@ jobs:
               --query "Stacks[0].Outputs[?OutputKey=='ALBDNS'].OutputValue" \
               --output text)
             echo "export ALB_DNS=${ALB_DNS}" >> $BASH_ENV
-            pwd
       - persist_to_workspace:
           root: .
           paths:
@@ -107,8 +106,8 @@ jobs:
       - run:
           name: Setup SSH config
           command: |
-            echo -e "Host $(cat /home/circleci/project/target_ip.txt)\n    \
-            HostName ${TARGET_IP}\n    \
+            echo -e "Host target\n    \
+            HostName $(cat /home/circleci/project/target_ip.txt)\n    \
             IdentityFile ~/.ssh/circleci-key-pair.pem\n    \
             User ec2-user" >> ~/.ssh/config
             cat ~/.ssh/config
