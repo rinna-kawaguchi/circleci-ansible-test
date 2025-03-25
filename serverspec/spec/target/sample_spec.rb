@@ -26,7 +26,7 @@ describe port(80) do
   it { should be_listening }
 end
 
-curlでd接続してステータスコード200が返ること
+# curlで接続してステータスコード200が返ること
 describe command('curl http://127.0.0.1 -o /dev/null -w "%{http_code}" -s') do
   its(:stdout) { should match /^200$/ }
 end
