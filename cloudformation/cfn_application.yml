@@ -49,10 +49,6 @@ Resources:
         - IpProtocol: tcp
           FromPort: 80
           ToPort: 80
-          SourceSecurityGroupId: !Ref CfnCIALBSecGrp
-        - IpProtocol: tcp
-          FromPort: 80
-          ToPort: 80
           CidrIp: !Ref MyIP
       Tags:
         - Key: !Ref TagKey
