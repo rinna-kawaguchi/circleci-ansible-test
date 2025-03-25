@@ -68,6 +68,7 @@ jobs:
             echo -e "[target_node]\n${TARGET_IP} ansible_user=ec2-user \
               ansible_ssh_private_key_file=~/.ssh/circleci-key-pair.pem" > ansible/inventory
             echo "export TARGET_IP=${TARGET_IP}" >> $BASH_ENV
+            echo "${TARGET_IP}" > target_ip.txt
       - run:
           name: Get RDS password from AWS Secrets Manager
           command: |
@@ -84,6 +85,11 @@ jobs:
               --query "Stacks[0].Outputs[?OutputKey=='ALBDNS'].OutputValue" \
               --output text)
             echo "export ALB_DNS=${ALB_DNS}" >> $BASH_ENV
+            pwd
+      - persist_to_workspace:
+          root: .
+          paths:
+            - target_ip.txt
       - ansible-playbook/playbook:
           playbook: ansible/playbook.yml
           playbook-options: -i ansible/inventory
@@ -101,9 +107,9 @@ jobs:
       - run:
           name: Setup SSH config
           command: |
-            echo -e "Host target\n    \
+            echo -e "Host $(cat /home/circleci/project/target_ip.txt)\n    \
             HostName ${TARGET_IP}\n    \
-            IdentityFile ~/.ssh/circleci-key-pair\n    \
+            IdentityFile ~/.ssh/circleci-key-pair.pem\n    \
             User ec2-user" >> ~/.ssh/config
             cat ~/.ssh/config
       - run:
