@@ -81,22 +81,6 @@ Resources:
           Value: !Sub "${PJName}-ec2"
         - Key: !Ref TagKey
           Value: !Ref PJName
-  # ------------------------------------------------------------#
-  #  ElasticIP
-  # ------------------------------------------------------------#
-  CfnCIElasticIP:
-    Type: "AWS::EC2::EIP"
-    Properties:
-      Domain: vpc
-      Tags:
-        - Key: !Ref TagKey
-          Value: !Ref PJName
-
-  CfnCIEIPAssociation:
-    Type: AWS::EC2::EIPAssociation
-    Properties:
-      InstanceId: !Ref CfnCIEC2
-      EIP: !Ref CfnCIElasticIP
 
   # ------------------------------------------------------------#
   #  SecurityGroup(for RDS)
@@ -274,6 +258,6 @@ Resources:
 # ------------------------------------------------------------#
 Outputs:
   EC2PublicIP:
-    Value: !GetAtt CfnCIElasticIP.PublicIp
+    Value: !GetAtt CfnCIEC2.PublicIp
   ALBDNS:
     Value: !GetAtt CfnCIALB.DNSName
