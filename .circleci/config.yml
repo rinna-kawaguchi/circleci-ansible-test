@@ -78,6 +78,14 @@ jobs:
               --output text | jq '.password')
             echo "export DB_PASSWORD=${DB_PASSWORD}" >> $BASH_ENV
       - run:
+          name: Get DB endpoint
+          command: |
+            DB_HOST=$(aws cloudformation describe-stacks \
+              --stack-name raisetech-aws-lecture13-ci-application \
+              --query "Stacks[0].Outputs[?OutputKey=='DBEndpoint'].OutputValue" \
+              --output text)
+            echo "export DB_HOST=${DB_HOST}" >> $BASH_ENV
+      - run:
           name: Get ALB DNS
           command: |
             ALB_DNS=$(aws cloudformation describe-stacks \

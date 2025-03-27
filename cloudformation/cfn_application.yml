@@ -257,5 +257,7 @@ Resources:
 #  Outputs
 # ------------------------------------------------------------#
 Outputs:
+  DBEndpoint:
+    Value: !GetAtt CfnCIRDSInstance.Endpoint.Address
   ALBDNS:
     Value: !GetAtt CfnCIALB.DNSName
