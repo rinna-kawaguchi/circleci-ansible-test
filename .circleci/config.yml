@@ -137,7 +137,9 @@ workflows:
     # Inside the workflow, you define the jobs you want to run.
     jobs:
       - cfn-lint
-      - execute-cloudformation
+      - execute-cloudformation:
+          requires:
+            - cfn-lint
       - execute-ansible:
           requires:
             - execute-cloudformation
